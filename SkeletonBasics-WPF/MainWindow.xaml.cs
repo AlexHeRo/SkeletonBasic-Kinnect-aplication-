@@ -348,32 +348,32 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         //funcion para validar si esta posición bien, back, front o error
         private int validaCadera(Skeleton skeleton) { 
             float mov;//parametro de movimiento
-            //precision
+            float precision = 0.05; //precision , mejor calcularlo de otra manera.
             int estoy;
             
-            float cadera = skeleton.Joints[JointType.Spine].Position.Z;
-
+            float cadera1 = skeleton.Joints[JointType.Spine].Position.Z;
+            
             float shoulder = skeleton.Joints[JointType.ShoulderCenter].Position.Z;
 
             float caderaX = skeleton.Joints[JointType.Spine].Position.X;
 
             float shoulderX = skeleton.Joints[JointType.ShoulderCenter].Position.X;
 
-            if (caderaX != shoulderX)
+            if (caderaX != (shoulderX + precision) || caderaX != (shoulderX - precision))
             {
                 estoy = 0;
             }
             else
             {
-                if (cadera > (shoulder + mov))  //posicion cadera mayor a angulo ,alineado con shoulderCenter
+                if (cadera > (shoulder + mov + precision) || cadera > (shoulder + mov - precision))  //posicion cadera mayor a angulo ,alineado con shoulderCenter
                 {
                     estoy = 2;
                 }
-                if (cadera < (shoulder + mov))  //posicion cadera menor a angulo
+                if (cadera < (shoulder + mov + precision) || cadera < (shoulder + mov - precision))  //posicion cadera menor a angulo
                 {
                     estoy = 1;
                 }
-                if (shoulder == (shoulder + mov)) //igual a angulo
+                if (cadera == (shoulder + mov + precision) || cadera == (shoulder + mov - precision)) //igual a angulo
                 {
                     estoy = 3;
                 }
