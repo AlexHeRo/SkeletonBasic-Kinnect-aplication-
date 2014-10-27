@@ -268,34 +268,40 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <param name="drawingContext">drawing context to draw to</param>
         private void DrawBonesAndJoints(Skeleton skeleton, DrawingContext drawingContext)
         {
+            // variable para controlar que parte es la que nos interesa, la declaro int, porque estaremos interados en muchas partes
+            //diferentes
+            int soy = 0; 
+            
             // Render Torso
-            this.DrawBone(skeleton, drawingContext, JointType.Head, JointType.ShoulderCenter);
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderRight);
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.Spine);
-            this.DrawBone(skeleton, drawingContext, JointType.Spine, JointType.HipCenter);
-            this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipLeft);  
-            this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipRight);
+            this.DrawBone(skeleton, drawingContext, JointType.Head, JointType.ShoulderCenter,soy);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderLeft,soy);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.ShoulderRight, soy);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderCenter, JointType.Spine, soy);
+            soy = 1;
+            this.DrawBone(skeleton, drawingContext, JointType.Spine, JointType.HipCenter, soy);
+            soy = 0;
+            this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipLeft, soy);  
+            this.DrawBone(skeleton, drawingContext, JointType.HipCenter, JointType.HipRight, soy);
 
             // Left Arm
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderLeft, JointType.ElbowLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.ElbowLeft, JointType.WristLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.WristLeft, JointType.HandLeft);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderLeft, JointType.ElbowLeft, soy);
+            this.DrawBone(skeleton, drawingContext, JointType.ElbowLeft, JointType.WristLeft, soy);
+            this.DrawBone(skeleton, drawingContext, JointType.WristLeft, JointType.HandLeft, soy);
 
             // Right Arm
-            this.DrawBone(skeleton, drawingContext, JointType.ShoulderRight, JointType.ElbowRight);
-            this.DrawBone(skeleton, drawingContext, JointType.ElbowRight, JointType.WristRight);
-            this.DrawBone(skeleton, drawingContext, JointType.WristRight, JointType.HandRight);
+            this.DrawBone(skeleton, drawingContext, JointType.ShoulderRight, JointType.ElbowRight, soy);
+            this.DrawBone(skeleton, drawingContext, JointType.ElbowRight, JointType.WristRight, soy);
+            this.DrawBone(skeleton, drawingContext, JointType.WristRight, JointType.HandRight, soy);
 
             // Left Leg
-            this.DrawBone(skeleton, drawingContext, JointType.HipLeft, JointType.KneeLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.KneeLeft, JointType.AnkleLeft);
-            this.DrawBone(skeleton, drawingContext, JointType.AnkleLeft, JointType.FootLeft);
+            this.DrawBone(skeleton, drawingContext, JointType.HipLeft, JointType.KneeLeft, soy);
+            this.DrawBone(skeleton, drawingContext, JointType.KneeLeft, JointType.AnkleLeft, soy);
+            this.DrawBone(skeleton, drawingContext, JointType.AnkleLeft, JointType.FootLeft, soy);
 
             // Right Leg
-            this.DrawBone(skeleton, drawingContext, JointType.HipRight, JointType.KneeRight);
-            this.DrawBone(skeleton, drawingContext, JointType.KneeRight, JointType.AnkleRight);
-            this.DrawBone(skeleton, drawingContext, JointType.AnkleRight, JointType.FootRight);
+            this.DrawBone(skeleton, drawingContext, JointType.HipRight, JointType.KneeRight, soy);
+            this.DrawBone(skeleton, drawingContext, JointType.KneeRight, JointType.AnkleRight, soy);
+            this.DrawBone(skeleton, drawingContext, JointType.AnkleRight, JointType.FootRight, soy);
  
             // Render Joints
             foreach (Joint joint in skeleton.Joints)
@@ -338,7 +344,45 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <param name="drawingContext">drawing context to draw to</param>
         /// <param name="jointType0">joint to start drawing from</param>
         /// <param name="jointType1">joint to end drawing at</param>
-        private void DrawBone(Skeleton skeleton, DrawingContext drawingContext, JointType jointType0, JointType jointType1)
+        
+        //funcion para validar si esta posición bien, back, front o error
+        private int validaCadera(Skeleton skeleton) { 
+            float mov;//parametro de movimiento
+            //precision
+            int estoy;
+            
+            float cadera = skeleton.Joints[JointType.Spine].Position.Z;
+
+            float shoulder = skeleton.Joints[JointType.ShoulderCenter].Position.Z;
+
+            float caderaX = skeleton.Joints[JointType.Spine].Position.X;
+
+            float shoulderX = skeleton.Joints[JointType.ShoulderCenter].Position.X;
+
+            if (caderaX != shoulderX)
+            {
+                estoy = 0;
+            }
+            else
+            {
+                if (cadera > (shoulder + mov))  //posicion cadera mayor a angulo ,alineado con shoulderCenter
+                {
+                    estoy = 2;
+                }
+                if (cadera < (shoulder + mov))  //posicion cadera menor a angulo
+                {
+                    estoy = 1;
+                }
+                if (shoulder == (shoulder + mov)) //igual a angulo
+                {
+                    estoy = 3;
+                }
+            }
+            
+            return estoy;
+        }
+        
+        private void DrawBone(Skeleton skeleton, DrawingContext drawingContext, JointType jointType0, JointType jointType1, int soy)
         {
             Joint joint0 = skeleton.Joints[jointType0];
             Joint joint1 = skeleton.Joints[jointType1];
@@ -365,10 +409,37 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 drawPen = this.trackedBonePen;
             }
             */
-            //Para cruz, (pos inicial) la componente Z del joint WristLeft, ElbowLeft, ElbowRight, WristRight
-
-
+            //Para cruz, (pos inicial) la componente Z del joint WristLeft, ElbowLeft, ElbowRight, WristRight han de ser igual
+                
+            //Para cadera, el componente X de hipcenter debe de ser "long dada(ld)" mayor que el X de spine, si > 
+            if (soy == 0) {
+                drawPen = this.trackedBonePen;
+            }
+            if (soy == 1)
+            {
+                //error
+                if (this.validaCadera(skeleton)==0)
+                {
+                    drawPen = this.errorBonePen;
+                }
+                //back
+                if (this.validaCadera(skeleton) == 1)
+                {
+                    drawPen = this.errorBackBonePen;
+                }
+                //front
+                if (this.validaCadera(skeleton) == 2)
+                {
+                    drawPen = this.errorFrontBonePen;
+                }
+                //bien
+                if (this.validaCadera(skeleton) == 3)
+                {
+                    drawPen = this.trackedBonePen;
+                }
+            }
             drawingContext.DrawLine(drawPen, this.SkeletonPointToScreen(joint0.Position), this.SkeletonPointToScreen(joint1.Position));
+        
         }
 
         /// <summary>
