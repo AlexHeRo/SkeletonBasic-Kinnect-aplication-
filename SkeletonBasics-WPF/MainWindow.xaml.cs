@@ -345,7 +345,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         private int validaCadera(Skeleton skeleton) { 
             //float mov = 4;//parametro de movimiento
             
-            //precision , mejor calcularlo de otra manera.
+            //precision , mejor calcularlo de otra manera. !!!!! BAJAR PRECISIÓN!!!!!!
             double precision = 0.05; 
             
             //Lo iniciamos a 4, que corresponde a un estado de error
@@ -357,9 +357,9 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
 
             float caderaX = skeleton.Joints[JointType.HipCenter].Position.X;
 
-            float shoulderX = skeleton.Joints[JointType.Spine].Position.X;
+            float shoulderX = skeleton.Joints[JointType.ShoulderCenter].Position.X;
             
-            if (caderaX > (shoulderX + precision) || caderaX > (shoulderX - precision) || caderaX < (shoulderX + precision) || caderaX < (shoulderX - precision))
+            if (caderaX > (shoulderX + precision) || caderaX < (shoulderX - precision))
             {
                 estoy = 0;
             }
