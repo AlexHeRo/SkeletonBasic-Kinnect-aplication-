@@ -178,8 +178,22 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
 
             if (null != this.sensor)
             {
+                
+                //Parámetros para el suavizado 
+                
+                TransformSmoothParameters smoothingParam = new TransformSmoothParameters();
+                {
+                    smoothingParam.Smoothing = 0.5f;
+                    smoothingParam.Correction = 0.5f;
+                    smoothingParam.Prediction = 0.5f;
+                    smoothingParam.JitterRadius = 0.05f;
+                    smoothingParam.MaxDeviationRadius = 0.04f;
+                };
+
+                // this.sensor.SkeletonStream.Enable(smoothingParam); // Enable skeletal tracking
+                
                 // Turn on the skeleton stream to receive skeleton frames
-                this.sensor.SkeletonStream.Enable();
+                this.sensor.SkeletonStream.Enable(smoothingParam);
 
                 // Add an event handler to be called whenever there is new color frame data
                 this.sensor.SkeletonFrameReady += this.SensorSkeletonFrameReady;
@@ -346,9 +360,9 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             //float mov = 4;//parametro de movimiento
             
             //precision , mejor calcularlo de otra manera. !!!!! BAJAR PRECISIÓN!!!!!!
-            double precision = 0.05; 
+            float precision = 0;  //Definida en parámetros específicos. Esto hay que borrarlo. 
             
-            //Lo iniciamos a 4, que corresponde a un estado de error
+            //Lo iniciamos a 4, que corresponde a un estado de error 
             int estoy = 4; 
             
             float cadera = skeleton.Joints[JointType.HipCenter].Position.Z;
@@ -446,7 +460,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 {
                     drawPen = this.trackedBonePen;
                 }
-                //ERROR INTERNO 
+                //ERROR INTERNO, ALGO HA SALIDO MAL
                 if (this.validaCadera(skeleton) == 4)
                 {
                     drawPen = this.errorP;
