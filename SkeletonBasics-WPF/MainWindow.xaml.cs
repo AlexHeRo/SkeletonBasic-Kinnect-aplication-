@@ -351,7 +351,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             float precision = 0.05; //precision , mejor calcularlo de otra manera.
             int estoy;
             
-            float cadera1 = skeleton.Joints[JointType.Spine].Position.Z;
+            float cadera = skeleton.Joints[JointType.Spine].Position.Z;
             
             float shoulder = skeleton.Joints[JointType.ShoulderCenter].Position.Z;
 
