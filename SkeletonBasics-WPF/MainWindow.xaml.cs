@@ -79,8 +79,11 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <summary> 
         /// Pen used for drawing bones that are currently inferred (bad position, front goal)
         /// </summary>
-        private readonly Pen errorFrontBonePen = new Pen(Brushes.Yellow, 6);    
+        private readonly Pen errorFrontBonePen = new Pen(Brushes.Yellow, 6);
+
+        private readonly Pen errorP = new Pen(Brushes.White, 6);    
         
+
         /// <summary>
         /// Active Kinect sensor
         /// </summary>
@@ -347,19 +350,19 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         
         //funcion para validar si esta posición bien, back, front o error
         private int validaCadera(Skeleton skeleton) { 
-            float mov;//parametro de movimiento
-            float precision = 0.05; //precision , mejor calcularlo de otra manera.
-            int estoy;
+            float mov = 4;//parametro de movimiento
+            double precision = 0.05; //precision , mejor calcularlo de otra manera.
+            int estoy = 4;
             
-            float cadera = skeleton.Joints[JointType.Spine].Position.Z;
+            float cadera = skeleton.Joints[JointType.HipCenter].Position.Z;
             
             float shoulder = skeleton.Joints[JointType.ShoulderCenter].Position.Z;
 
-            float caderaX = skeleton.Joints[JointType.Spine].Position.X;
+            float caderaX = skeleton.Joints[JointType.HipCenter].Position.X;
 
             float shoulderX = skeleton.Joints[JointType.ShoulderCenter].Position.X;
 
-            if (caderaX != (shoulderX + precision) || caderaX != (shoulderX - precision))
+            if (caderaX > (shoulderX + precision * 10) || caderaX > (shoulderX - precision * 10) || caderaX < (shoulderX + precision * 10) || caderaX < (shoulderX - precision * 10))
             {
                 estoy = 0;
             }
@@ -437,6 +440,12 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 {
                     drawPen = this.trackedBonePen;
                 }
+                //ERROR INTERNO 
+                if (this.validaCadera(skeleton) == 4)
+                {
+                    drawPen = this.errorP;
+                }
+            
             }
             drawingContext.DrawLine(drawPen, this.SkeletonPointToScreen(joint0.Position), this.SkeletonPointToScreen(joint1.Position));
         
