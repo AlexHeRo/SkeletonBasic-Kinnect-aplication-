@@ -72,12 +72,12 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         private readonly Pen errorBonePen = new Pen(Brushes.Red, 6);
 
         /// <summary> 
-        /// Pen used for drawing bones that are currently inferred (bad position, back goal)
+        /// Pen used for drawing bones that are currently tracked (bad position, back goal)
         /// </summary>
-        private readonly Pen errorBackBonePen = new Pen(Brushes.LightCyan, 6);
+        private readonly Pen errorBackBonePen = new Pen(Brushes.Blue, 6);  //LightCyan
 
         /// <summary> 
-        /// Pen used for drawing bones that are currently inferred (bad position, front goal)
+        /// Pen used for drawing bones that are currently tracked (bad position, front goal)
         /// </summary>
         private readonly Pen errorFrontBonePen = new Pen(Brushes.Yellow, 6);
 
@@ -271,7 +271,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <param name="drawingContext">drawing context to draw to</param>
         private void DrawBonesAndJoints(Skeleton skeleton, DrawingContext drawingContext)
         {
-            // variable para controlar que parte es la que nos interesa, la declaro int, porque estaremos interados en muchas partes
+            // variable para controlar que parte es la que nos interesa, la declaro int,  para poder controlar
             //diferentes
             int soy = 0; 
             
@@ -340,6 +340,48 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             return new Point(depthPoint.X, depthPoint.Y);
         }
 
+        
+        //funcion para validar si esta posición bien, back, front o error
+        private int validaCadera(Skeleton skeleton) { 
+            //float mov = 4;//parametro de movimiento
+            
+            //precision , mejor calcularlo de otra manera.
+            double precision = 0.05; 
+            
+            //Lo iniciamos a 4, que corresponde a un estado de error
+            int estoy = 4; 
+            
+            float cadera = skeleton.Joints[JointType.HipCenter].Position.Z;
+            
+            float shoulder = skeleton.Joints[JointType.ShoulderCenter].Position.Z;
+
+            float caderaX = skeleton.Joints[JointType.HipCenter].Position.X;
+
+            float shoulderX = skeleton.Joints[JointType.Spine].Position.X;
+            
+            if (caderaX > (shoulderX + precision) || caderaX > (shoulderX - precision) || caderaX < (shoulderX + precision) || caderaX < (shoulderX - precision))
+            {
+                estoy = 0;
+            }
+            else
+            {
+                if (cadera > (shoulder /*+ mov*/ + precision) || cadera > (shoulder /*+ mov*/ - precision))  //posicion cadera mayor a angulo ,alineado con shoulderCenter
+                {
+                    estoy = 2;
+                }
+                if (cadera < (shoulder /*+ mov*/ + precision) || cadera < (shoulder /*+ mov*/ - precision))  //posicion cadera menor a angulo
+                {
+                    estoy = 1;
+                }
+                if (cadera == (shoulder /*+ mov*/ + precision) || cadera == (shoulder /*+ mov*/ - precision)) //igual a angulo
+                {
+                    estoy = 3;
+                }
+            }
+            
+            return estoy;
+        }
+
         /// <summary>
         /// Draws a bone line between two joints
         /// </summary>
@@ -348,42 +390,6 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <param name="jointType0">joint to start drawing from</param>
         /// <param name="jointType1">joint to end drawing at</param>
         
-        //funcion para validar si esta posición bien, back, front o error
-        private int validaCadera(Skeleton skeleton) { 
-            float mov = 4;//parametro de movimiento
-            double precision = 0.05; //precision , mejor calcularlo de otra manera.
-            int estoy = 4;
-            
-            float cadera = skeleton.Joints[JointType.HipCenter].Position.Z;
-            
-            float shoulder = skeleton.Joints[JointType.ShoulderCenter].Position.Z;
-
-            float caderaX = skeleton.Joints[JointType.HipCenter].Position.X;
-
-            float shoulderX = skeleton.Joints[JointType.ShoulderCenter].Position.X;
-
-            if (caderaX > (shoulderX + precision * 10) || caderaX > (shoulderX - precision * 10) || caderaX < (shoulderX + precision * 10) || caderaX < (shoulderX - precision * 10))
-            {
-                estoy = 0;
-            }
-            else
-            {
-                if (cadera > (shoulder + mov + precision) || cadera > (shoulder + mov - precision))  //posicion cadera mayor a angulo ,alineado con shoulderCenter
-                {
-                    estoy = 2;
-                }
-                if (cadera < (shoulder + mov + precision) || cadera < (shoulder + mov - precision))  //posicion cadera menor a angulo
-                {
-                    estoy = 1;
-                }
-                if (cadera == (shoulder + mov + precision) || cadera == (shoulder + mov - precision)) //igual a angulo
-                {
-                    estoy = 3;
-                }
-            }
-            
-            return estoy;
-        }
         
         private void DrawBone(Skeleton skeleton, DrawingContext drawingContext, JointType jointType0, JointType jointType1, int soy)
         {
